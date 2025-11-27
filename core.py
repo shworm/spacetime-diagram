@@ -24,8 +24,8 @@ def add_lorentz_curves(intervals=None):
 
 
     # these may be using the incorrect variables
-    x_vals = np.linspace(-x_lim, x_lim, 800)
-    y_vals = np.linspace(-y_lim, y_lim, 800)
+    x_vals = np.linspace(-x_lim, x_lim, 200)
+    y_vals = np.linspace(-y_lim, y_lim, 200)
 
     for index, w_value in enumerate(intervals):
         if w_value <= 0:
@@ -117,4 +117,56 @@ def zoom_factory(axes, base_scale=1.2):
 
     # stores callback function, zoom, for scroll event
     return axes.figure.canvas.mpl_connect("scroll_event", zoom)
+
+def move_factory(axes):
+    state = {"event": None}
+
+    def button_press_event(event):
+        if (event.inaxes != axes):
+            return
+        
+        if (event.button == 1):    
+            current_xlim = axes.get_xlim()
+            current_ylim = axes.get_ylim()
+            xdata = event.xdata
+            ydata = event.ydata
+
+            state["event"] = {
+                "x": xdata,
+                "y": ydata,
+                "xlim": current_xlim,
+                "ylim": current_ylim
+            }
+        
+    def motion_notify_event(event):
+        if (event.inaxes != axes or state["event"] == None or event.xdata == None or event.ydata == None):
+            return
+        
+        current_xlim = state["event"]["xlim"]
+        current_ylim = state["event"]["ylim"]
+        xdata = state["event"]["x"]
+        ydata = state["event"]["y"]
+        
+        # I should change this because it is horrible to read
+        dx = xdata - event.xdata
+        dy = ydata - event.ydata
+
+        axes.set_xlim([current_xlim[0] + dx, current_xlim[1] + dx])
+        axes.set_ylim([current_ylim[0] + dy, current_ylim[1] + dy])
+
+        state["event"]["x"] = event.xdata
+        state["event"]["y"] = event.ydata
+        state["event"]["xlim"] = axes.get_xlim()
+        state["event"]["ylim"] = axes.get_ylim()
+
+        axes.figure.canvas.draw_idle()
+        
+
+    def button_release_event(event):
+        state["event"] = None
+
+    axes.figure.canvas.mpl_connect("button_press_event", button_press_event)
+    axes.figure.canvas.mpl_connect("motion_notify_event", motion_notify_event)
+    return axes.figure.canvas.mpl_connect("button_release_event", button_release_event)
+    
     

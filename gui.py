@@ -46,7 +46,7 @@ def main():
 
     # bind global_axes events to these ones we are defining in these functions
     core.zoom_factory(core.global_axes)
-    #core.pan_factory(core.global_axes)
+    core.move_factory(core.global_axes)
 
     # main event loop
     window.mainloop()
