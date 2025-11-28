@@ -3,6 +3,7 @@ mpl.rcParams['toolbar'] = 'None'
 from matplotlib.figure import Figure
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
 
 global_figure = None  # canvas
@@ -11,8 +12,27 @@ global_axes = None  # single plot area inside figure
 x_lim = 10 # default
 y_lim = 10 # default
 
+origin_offset = {"x": 0.0, "y": 0.0}
+
+
 color_options = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
 color_index = 0
+
+
+def _build_ticks(limx, limy, divisions=12):
+    spanx = limx[1] - limx[0]
+    step = spanx / divisions
+
+    print("x: " + str(origin_offset.get("x")) + "\n y: " + str(origin_offset.get("y")))
+
+    return [np.arange(limx[0], limx[1], step), np.arange(limy[0], limy[1], step)]
+
+def _build_ticks_move(limx, limy, divisions=12):
+    spanx = (limx[1] - origin_offset.get("x")) - (limx[0] - origin_offset.get("x"))
+    spany = (limy[1] - origin_offset.get("y")) - (limy[0] - origin_offset.get("y"))
+    step = spanx / divisions
+
+    return [np.arange(limx[0] - origin_offset.get("x"), limx[1] - origin_offset.get("x"), step), np.arange(limy[0] - origin_offset.get("y"), limy[1] - origin_offset.get("y"), step)]
 
 def add_lorentz_curves(intervals=None):
     global color_index, color_options
@@ -57,8 +77,10 @@ def create_graph():
     global_axes = global_figure.add_subplot(111)
     
     global_axes.grid(True)
-    global_axes.set_xticks(list(range(-x_lim - 1, x_lim + 1)))
-    global_axes.set_yticks(list(range(-y_lim - 1, y_lim + 1)))
+
+    ticks = _build_ticks([-x_lim - 1, x_lim + 1], [-y_lim - 1, y_lim + 1])
+    global_axes.set_xticks(ticks[0])
+    global_axes.set_yticks(ticks[1])
 
 
     global_axes.set_xlim(-x_lim, x_lim)
@@ -86,32 +108,29 @@ def stop():
 
 def zoom_factory(axes, base_scale=1.2):
     def zoom(event):
-        if event.inaxes != axes:
-            # the event isn't in the main axes
-            return
         current_xlim = axes.get_xlim()
-        current_ylim = axes.get_ylim()
-        xdata = event.xdata
-        ydata = event.ydata
-        
-        # not sure what below does
-        if event.button == "up":
-            scale_factor = 1 / base_scale
-        elif event.button == "down":
-            scale_factor = base_scale
-        else:
-            return
-        
-        new_width = (current_xlim[1] - current_xlim[0]) * scale_factor
-        new_height = (current_ylim[1] - current_ylim[0]) * scale_factor
-        
-        # numerator: distance from right, demoniator: full width
-        x_edge_factor = (current_xlim[1] - xdata) / (current_xlim[1] - current_xlim[0])
-        y_edge_factor = (current_ylim[1] - ydata) / (current_ylim[1] - current_ylim[0])
+        span = current_xlim[1] - current_xlim[0]
+        new_width = span * (1 / base_scale if event.button == "up" else base_scale)
 
-        # subtract from minimum, add to maximum for new width
-        axes.set_xlim([xdata - new_width * (1 - x_edge_factor), xdata + new_width * x_edge_factor])
-        axes.set_ylim([ydata - new_height * (1 - y_edge_factor), ydata + new_height * y_edge_factor])
+        # keep origin centered
+        half = new_width / 2
+        axes.set_xlim(-half, half)
+
+        current_ylim = axes.get_ylim()
+        height = current_ylim[1] - current_ylim[0]
+        new_height = height * (1 / base_scale if event.button == "up" else base_scale)
+        axes.set_ylim(-new_height / 2, new_height / 2)
+
+        # and also set the ticks,
+        new_x_lim = axes.get_xlim()
+        new_y_lim = axes.get_ylim()
+
+        x_ticks, y_ticks = _build_ticks(new_x_lim, new_y_lim)
+        axes.set_xticks(x_ticks)
+        axes.set_yticks(y_ticks)
+
+
+
 
         axes.figure.canvas.draw_idle()
 
@@ -151,6 +170,10 @@ def move_factory(axes):
         dx = xdata - event.xdata
         dy = ydata - event.ydata
 
+        origin_offset["x"] += dx
+        origin_offset["y"] += dy
+
+        # there is something buggy with this code, it keeps snapping
         axes.set_xlim([current_xlim[0] + dx, current_xlim[1] + dx])
         axes.set_ylim([current_ylim[0] + dy, current_ylim[1] + dy])
 
@@ -159,14 +182,26 @@ def move_factory(axes):
         state["event"]["xlim"] = axes.get_xlim()
         state["event"]["ylim"] = axes.get_ylim()
 
+
+
+        # and also set the ticks, this needs a lot of work
+        new_x_lim = axes.get_xlim()
+        new_y_lim = axes.get_ylim()
+
+        x_ticks, y_ticks = _build_ticks_move(new_x_lim, new_y_lim)
+        axes.set_xticks(x_ticks)
+        axes.set_yticks(y_ticks)
+
+        # and the hyperbolas
+
         axes.figure.canvas.draw_idle()
         
 
     def button_release_event(event):
         state["event"] = None
 
-    axes.figure.canvas.mpl_connect("button_press_event", button_press_event)
-    axes.figure.canvas.mpl_connect("motion_notify_event", motion_notify_event)
-    return axes.figure.canvas.mpl_connect("button_release_event", button_release_event)
+    #axes.figure.canvas.mpl_connect("button_press_event", button_press_event)
+    #axes.figure.canvas.mpl_connect("motion_notify_event", motion_notify_event)
+    #axes.figure.canvas.mpl_connect("button_release_event", button_release_event)
     
     
