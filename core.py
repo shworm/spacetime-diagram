@@ -18,21 +18,32 @@ origin_offset = {"x": 0.0, "y": 0.0}
 color_options = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
 color_index = 0
 
+step = 24 / 12
+
 
 def _build_ticks(limx, limy, divisions=12):
+    global step
     spanx = limx[1] - limx[0]
     step = spanx / divisions
 
-    print("x: " + str(origin_offset.get("x")) + "\n y: " + str(origin_offset.get("y")))
+    print(step)
 
     return [np.arange(limx[0], limx[1], step), np.arange(limy[0], limy[1], step)]
 
 def _build_ticks_move(limx, limy, divisions=12):
-    spanx = (limx[1] - origin_offset.get("x")) - (limx[0] - origin_offset.get("x"))
-    spany = (limy[1] - origin_offset.get("y")) - (limy[0] - origin_offset.get("y"))
-    step = spanx / divisions
+    global step
+    spanx = (limx[1] - limx[0])
+    spany = (limy[1] - limy[0])
 
-    return [np.arange(limx[0] - origin_offset.get("x"), limx[1] - origin_offset.get("x"), step), np.arange(limy[0] - origin_offset.get("y"), limy[1] - origin_offset.get("y"), step)]
+    current_x_ticks = global_axes.get_xticks()
+
+    if (current_x_ticks[-1] - current_x_ticks[0]) > spanx:
+        print("add one to the right")
+    elif (current_x_ticks[-1] - current_x_ticks[0]) < spanx:
+        print("add one to the left?")
+
+    return [[], []]
+    #return [x_ticks, y_ticks]
 
 def add_lorentz_curves(intervals=None):
     global color_index, color_options
