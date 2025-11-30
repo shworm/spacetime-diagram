@@ -11,39 +11,59 @@ global_axes = None  # single plot area inside figure
 
 x_lim = 10 # default
 y_lim = 10 # default
-
-origin_offset = {"x": 0.0, "y": 0.0}
-
+divisions = 12
 
 color_options = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
 color_index = 0
 
 step = 24 / 12
 
+tick_origin_x = None
+tick_origin_y = None
 
-def _build_ticks(limx, limy, divisions=12):
-    global step
+
+def _build_ticks(limx, limy):
+    global step, tick_origin_x, tick_origin_y, divisions
     spanx = limx[1] - limx[0]
     step = spanx / divisions
 
-    print(step)
+    tick_origin_x = limx[0]
+    tick_origin_y = limy[0]
 
     return [np.arange(limx[0], limx[1], step), np.arange(limy[0], limy[1], step)]
 
-def _build_ticks_move(limx, limy, divisions=12):
-    global step
-    spanx = (limx[1] - limx[0])
-    spany = (limy[1] - limy[0])
+def _build_ticks_move(limx, limy):
+    global step, tick_origin_x, tick_origin_y
+    if step <= 0:
+        raise RuntimeError("step must be computed before calling _build_ticks_move")
+    if tick_origin_x is None or tick_origin_y is None:
+        raise RuntimeError("tick origins must be set before calling _build_ticks_move")
 
-    current_x_ticks = global_axes.get_xticks()
+    def _ticks_for_limits(limits, origin):
+        start = limits[0] # first element
+        end = limits[1] # second element (end)
 
-    if (current_x_ticks[-1] - current_x_ticks[0]) > spanx:
-        print("add one to the right")
-    elif (current_x_ticks[-1] - current_x_ticks[0]) < spanx:
-        print("add one to the left?")
+        offset_steps = math.floor((start - origin) / step) # number of steps needed to get in view
 
-    return [[], []]
-    #return [x_ticks, y_ticks]
+        first_tick = origin + offset_steps * step # actual first viewable tick location
+
+
+        # np.arrange stops before the upper bound, so we push the bound a little past end (end + 0.5 * step)
+        # to guarantee inclusion of a tick lying exactly at end.
+        ticks = np.arange(first_tick, end + step * 0.5, step)
+
+        
+        # a very small number we add on to start or end in order to prevent floating-point tiny errors
+        # ex. 7.00001, wouldn't be included in end = 7 or something. So we add 7 + (step * 0.05) = 7.1
+        eps = step * 0.05 
+
+        # ^ this could be not neccessary at all
+
+        visible = ticks[(ticks >= start) & (ticks <= end)] # previously start - eps, end + eps
+
+        return visible
+
+    return [_ticks_for_limits(limx, tick_origin_x), _ticks_for_limits(limy, tick_origin_y)]
 
 def add_lorentz_curves(intervals=None):
     global color_index, color_options
@@ -117,6 +137,7 @@ def stop():
     global_axes = None
 
 
+# Working perfectly
 def zoom_factory(axes, base_scale=1.2):
     def zoom(event):
         current_xlim = axes.get_xlim()
@@ -148,6 +169,8 @@ def zoom_factory(axes, base_scale=1.2):
     # stores callback function, zoom, for scroll event
     return axes.figure.canvas.mpl_connect("scroll_event", zoom)
 
+
+# Not working perfectly
 def move_factory(axes):
     state = {"event": None}
 
@@ -181,19 +204,12 @@ def move_factory(axes):
         dx = xdata - event.xdata
         dy = ydata - event.ydata
 
-        origin_offset["x"] += dx
-        origin_offset["y"] += dy
-
         # there is something buggy with this code, it keeps snapping
         axes.set_xlim([current_xlim[0] + dx, current_xlim[1] + dx])
         axes.set_ylim([current_ylim[0] + dy, current_ylim[1] + dy])
 
-        state["event"]["x"] = event.xdata
-        state["event"]["y"] = event.ydata
         state["event"]["xlim"] = axes.get_xlim()
         state["event"]["ylim"] = axes.get_ylim()
-
-
 
         # and also set the ticks, this needs a lot of work
         new_x_lim = axes.get_xlim()
@@ -211,8 +227,8 @@ def move_factory(axes):
     def button_release_event(event):
         state["event"] = None
 
-    #axes.figure.canvas.mpl_connect("button_press_event", button_press_event)
-    #axes.figure.canvas.mpl_connect("motion_notify_event", motion_notify_event)
-    #axes.figure.canvas.mpl_connect("button_release_event", button_release_event)
+    axes.figure.canvas.mpl_connect("button_press_event", button_press_event)
+    axes.figure.canvas.mpl_connect("motion_notify_event", motion_notify_event)
+    axes.figure.canvas.mpl_connect("button_release_event", button_release_event)
     
     

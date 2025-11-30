@@ -41,8 +41,6 @@ def main():
     # Here we make the actual matplotlib graph
     figure = core.create_graph()
     canvas = FigureCanvasTkAgg(figure, master=window)
-    toolbar = NavigationToolbar2Tk(canvas, window)
-    toolbar.update()
     canvas.draw_idle() # draw it
     canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True, padx=10, pady=10) # what does this do?
 
