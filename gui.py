@@ -30,6 +30,8 @@ step = 24 / divisions # space between each tick
 tick_origin_x = None
 tick_origin_y = None
 
+lorentz_curves = []
+
 # -------------------------------------
 #                                     |
 #       Tkinter Functions             |
@@ -74,7 +76,7 @@ def _build_ticks(limx, limy):
 
 def _build_ticks_move(limx, limy):
     global step, tick_origin_x, tick_origin_y
-    
+
     if step <= 0:
         raise RuntimeError("step must be computed before calling _build_ticks_move")
     if tick_origin_x is None or tick_origin_y is None:
@@ -137,8 +139,8 @@ def zoom_factory(axes, base_scale=1.2):
         axes.set_xticks(x_ticks)
         axes.set_yticks(y_ticks)
 
-
-
+        # In the future we should be updating curves based on view
+        # add_lorentz_curves()
 
         axes.figure.canvas.draw_idle()
 
@@ -195,7 +197,9 @@ def move_factory(axes):
         axes.set_xticks(x_ticks)
         axes.set_yticks(y_ticks)
 
-        # and the hyperbolas
+
+        # In the future we should be updating curves based on view
+        #add_lorentz_curves()
 
         axes.figure.canvas.draw_idle()
         
@@ -225,7 +229,6 @@ def create_graph():
     global_axes.set_xticks(ticks[0])
     global_axes.set_yticks(ticks[1])
 
-
     global_axes.set_xlim(-x_lim, x_lim)
     global_axes.set_ylim(-y_lim, y_lim)
 
@@ -252,12 +255,15 @@ def add_lorentz_curves(intervals=None):
         raise RuntimeError("Graph has not been created yet.")
 
     if intervals is None:
-        intervals = list(range(1, y_lim + 1))
+        #intervals = list(range(1, y_lim + 1))
+        intervals = list(range(1, 100))
 
+    #x_vals = np.linspace(-x_lim, x_lim, 200)
+    #y_vals = np.linspace(-y_lim, y_lim, 200)
 
-    # these may be using the incorrect variables
-    x_vals = np.linspace(-x_lim, x_lim, 200)
-    y_vals = np.linspace(-y_lim, y_lim, 200)
+    # Bruteforce 1000 seconds
+    x_vals = np.linspace(-100, 100, 4000)
+    y_vals = np.linspace(-100, 100, 4000)
 
     for index, w_value in enumerate(intervals):
         if w_value <= 0:
