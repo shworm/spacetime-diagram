@@ -9,6 +9,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
+import core
+
 # -------------------------------------
 #                                     |
 #              Globals                |
@@ -248,6 +250,9 @@ def add_point(x_location: float):
     global_axes.plot([x_location], [0], marker="o", linestyle="")
     global_axes.axvline(x=x_location, color="red", linestyle="-")
 
+def add_worldline(x_intercept, velocity):
+    core.create_worldline(x_intercept, velocity, global_axes)
+
 
 def add_lorentz_curves(intervals=None):
     global color_index, color_options
@@ -295,20 +300,27 @@ def add_lorentz_curves(intervals=None):
 #                                     |
 # -------------------------------------
 
+def create_input_box(window, text, bg, fg):
+    greeting = tk.Label(window, text=text)
+    greeting.pack()
+
+    input = tk.Entry(window, text="Enter here: ", bg="white", fg="black")
+    input.pack()
+    return input
+
+
 def main():
     # This is where we do all of our tkinter stuff
     window = tk.Tk()
     window.title("Spacetime Diagram")
     window.geometry("1000x1000")
 
-    greeting = tk.Label(window, text="Object's x location")
-    greeting.pack()
-
-    input = tk.Entry(window, text="Enter here: ", bg="white", fg="black")
-    input.pack()
+    input_object = create_input_box(window, "Object's x location", "white", "black")
 
     submit_button = tk.Button(window, text="Submit", command=lambda: submit_function(input.get(), canvas))
-    submit_button.pack()    
+    submit_button.pack()   
+
+    #input_worldline = create_input_box(window, "Worldine", "white", "black") 
 
     # closes the window
     quit_button = tk.Button(window, text="Quit", command=lambda: stop(window))
