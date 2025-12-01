@@ -24,15 +24,10 @@ x_lim = 10 # default
 y_lim = 10 # default
 divisions = 12 # default, how many ticks there are
 
-color_options = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
-color_index = 0
-
 step = 24 / divisions # space between each tick
 
 tick_origin_x = None
 tick_origin_y = None
-
-lorentz_curves = []
 
 # -------------------------------------
 #                                     |
@@ -47,8 +42,34 @@ def submit_function(x, canvas):
         raise ValueError(f"Cannot convert '{x}' to a float.")
     
     x = float(x)
-    add_point(x)
+    core.add_point(x, global_axes)
     canvas.draw_idle()
+'''
+def add_point(x_location: float):
+    if global_axes is None:
+        raise RuntimeError("Graph has not been created yet.")
+    global_axes.plot([x_location], [0], marker="o", linestyle="")
+    global_axes.axvline(x=x_location, color="red", linestyle="-")
+'''
+
+def submit_function_2(x, y, canvas):
+    try:
+        float(x)
+    except ValueError:
+        raise ValueError(f"Cannot convert '{x}' to a float.")
+    try:
+        float(y)
+    except ValueError:
+        raise ValueError(f"Cannot convert '{y}' to a float.")
+    
+    x_intercept = float(x)
+    β = float(y) # this is awesome that python lets us use symbols
+    
+    #do something here
+    core.calculate_frame(x_intercept, β, global_axes)
+
+    canvas.draw_idle()
+    
 
 def stop(window):
     window.destroy() 
@@ -234,65 +255,9 @@ def create_graph():
     global_axes.set_xlim(-x_lim, x_lim)
     global_axes.set_ylim(-y_lim, y_lim)
 
-    add_lorentz_curves()
+    core.add_lorentz_curves(global_axes)
     return global_figure
     
-
-# -------------------------------------
-#                                     |
-#       Drawing Functions             |
-#                                     |
-# -------------------------------------
-
-def add_point(x_location: float):
-    if global_axes is None:
-        raise RuntimeError("Graph has not been created yet.")
-    global_axes.plot([x_location], [0], marker="o", linestyle="")
-    global_axes.axvline(x=x_location, color="red", linestyle="-")
-
-def add_worldline(x_intercept, velocity):
-    core.create_worldline(x_intercept, velocity, global_axes)
-
-
-def add_lorentz_curves(intervals=None):
-    global color_index, color_options
-    if global_axes is None:
-        raise RuntimeError("Graph has not been created yet.")
-
-    if intervals is None:
-        #intervals = list(range(1, y_lim + 1))
-        intervals = list(range(1, 100))
-
-    #x_vals = np.linspace(-x_lim, x_lim, 200)
-    #y_vals = np.linspace(-y_lim, y_lim, 200)
-
-    # Bruteforce 1000 seconds
-    x_vals = np.linspace(-100, 100, 4000)
-    y_vals = np.linspace(-100, 100, 4000)
-
-    for index, w_value in enumerate(intervals):
-        if w_value <= 0:
-            raise ValueError("Interval constants must be positive.")
-        
-        y = np.sqrt(x_vals ** 2 + w_value ** 2)
-        x_branch = np.sqrt(y_vals ** 2 + w_value ** 2)
-
-        if index == 0:
-            label = "spacetime interval" 
-        else: 
-            None
-
-        global_axes.plot(x_vals, y, color=color_options[color_index], linestyle="-", label=label, alpha=0.35)
-        global_axes.plot(x_vals, -y, color=color_options[color_index], linestyle="-", alpha=0.35)
-
-        global_axes.plot(x_branch, y_vals, color=color_options[color_index], linestyle="-", label=label, alpha=0.35)
-        global_axes.plot(-x_branch, y_vals, color=color_options[color_index], linestyle="-", alpha=0.35)
-
-        if (color_index < 6):
-            color_index += 1
-        else:
-            color_index = 0
-
 
 # -------------------------------------
 #                                     |
@@ -300,25 +265,32 @@ def add_lorentz_curves(intervals=None):
 #                                     |
 # -------------------------------------
 
-def create_input_box(window, text, bg, fg):
-    greeting = tk.Label(window, text=text)
-    greeting.pack()
-
-    input = tk.Entry(window, text="Enter here: ", bg="white", fg="black")
-    input.pack()
-    return input
-
-
 def main():
     # This is where we do all of our tkinter stuff
     window = tk.Tk()
     window.title("Spacetime Diagram")
-    window.geometry("1000x1000")
+    window.geometry("1080x1080")
 
-    input_object = create_input_box(window, "Object's x location", "white", "black")
+    greeting = tk.Label(window, text="Object's x location")
+    greeting.place(x=10, y=10)
+
+    input = tk.Entry(window, text="Enter here: ", bg="white", fg="black")
+    input.place(x=10, y=50)
 
     submit_button = tk.Button(window, text="Submit", command=lambda: submit_function(input.get(), canvas))
-    submit_button.pack()   
+    submit_button.place(x=10, y=100)  
+
+    # repeated code
+    greeting_2 = tk.Label(window, text="Add a inertial frame. (top input is x' at t'=0, bottom input is β)")
+    greeting_2.pack()
+
+    input_2_1 = tk.Entry(window, text="Enter here: 2", bg="white", fg="black")
+    input_2_1.pack()
+    input_2_2 = tk.Entry(window, text="Enter here: 3", bg="white", fg="black")
+    input_2_2.pack()
+
+    submit_button_2 = tk.Button(window, text="Submit", command=lambda: submit_function_2(input_2_1.get(), input_2_2.get(), canvas))
+    submit_button_2.pack()   
 
     #input_worldline = create_input_box(window, "Worldine", "white", "black") 
 
