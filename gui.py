@@ -68,7 +68,12 @@ def submit_function_2(x, y, canvas):
     #do something here
     core.calculate_frame(x_intercept, β, global_axes)
 
+    
+
     canvas.draw_idle()
+
+    global_axes.legend(bbox_to_anchor=(1, 1), loc='upper left', borderaxespad=0.)
+    plt.show()
     
 
 def stop(window):
@@ -173,9 +178,11 @@ def zoom_factory(axes, base_scale=1.2):
 
 # Not working perfectly
 def move_factory(axes):
+    mouse_down = False
     state = {"event": None}
 
     def button_press_event(event):
+        nonlocal mouse_down
         if (event.inaxes != axes):
             return
         
@@ -191,6 +198,7 @@ def move_factory(axes):
                 "xlim": current_xlim,
                 "ylim": current_ylim
             }
+        mouse_down = True
         
     def motion_notify_event(event):
         if (event.inaxes != axes or state["event"] == None or event.xdata == None or event.ydata == None):
@@ -226,9 +234,64 @@ def move_factory(axes):
 
         axes.figure.canvas.draw_idle()
         
+    picked_point = None
+    annotation = None
 
     def button_release_event(event):
+        nonlocal picked_point, annotation
         state["event"] = None
+        if picked_point is not None:
+            picked_point.remove()
+            picked_point = None
+            axes.figure.canvas.draw_idle()
+
+        if annotation is not None:
+            annotation.remove()
+            annotation = None
+            axes.figure.canvas.draw_idle()
+
+        mouse_down = False
+    
+    def onpick(event):
+        global step
+        nonlocal picked_point, annotation, mouse_down
+
+        if (mouse_down == False):
+            return
+
+        line = core.get_tprime()
+        β = core.get_β()
+
+        if event.artist == line:
+            # index of the picked point
+            ind = event.ind[0]
+
+            x_val = line.get_xdata()[ind]
+            y_val = line.get_ydata()[ind]
+            #print(f"Picked point: index={ind}, x={x_val:.2f}, y={y_val:.2f}")
+
+            if picked_point is not None:
+                picked_point.remove()
+
+            # create a point for the thing
+            picked_point, = axes.plot([x_val], [y_val], marker='o', markersize=8, color='red')
+
+            if annotation is not None:
+                annotation.remove()
+
+            # add text for the point
+            annotation = global_axes.annotate(
+                f'Point: (t\' = {core.calculate_t_prime(y_val, x_val, β)}, x\' = {core.calculate_x_prime(y_val, x_val, β)})',  # Annotation text
+                xy=(x_val, y_val),            # Point to annotate
+                xytext=(x_val + step * 0.25, y_val + step * 0.5), # Text position (offset from xy)
+                arrowprops=dict(facecolor='black', shrink=step * 0.1), # Arrow properties
+                bbox=dict(boxstyle="round,pad=0.3", fc="yellow", ec="black", lw=1, alpha=0.9), # Text box properties
+                ha='left', va='bottom' # Horizontal and vertical alignment of text
+            )
+
+            axes.figure.canvas.draw_idle()
+
+    axes.figure.canvas.mpl_connect('pick_event', onpick)
 
     axes.figure.canvas.mpl_connect("button_press_event", button_press_event)
     axes.figure.canvas.mpl_connect("motion_notify_event", motion_notify_event)
