@@ -44,13 +44,41 @@ def submit_function(x, canvas):
     x = float(x)
     core.add_point(x, global_axes)
     canvas.draw_idle()
-'''
-def add_point(x_location: float):
-    if global_axes is None:
-        raise RuntimeError("Graph has not been created yet.")
-    global_axes.plot([x_location], [0], marker="o", linestyle="")
-    global_axes.axvline(x=x_location, color="red", linestyle="-")
-'''
+
+def submit_event_a(x, y, canvas):
+    try:
+        float(x)
+    except ValueError:
+        raise ValueError(f"Cannot convert '{x}' to a float.")
+    
+    try:
+        float(y)
+    except ValueError:
+        raise ValueError(f"Cannot convert '{y}' to a float.")
+    
+    
+    x = float(x)
+    y = float(y)
+    core.add_event_a(x, y, global_axes, canvas)
+    canvas.draw_idle()
+
+def submit_event_b(x, y, canvas):
+    try:
+        float(x)
+    except ValueError:
+        raise ValueError(f"Cannot convert '{x}' to a float.")
+    
+    try:
+        float(y)
+    except ValueError:
+        raise ValueError(f"Cannot convert '{y}' to a float.")
+    
+    
+    x = float(x)
+    y = float(y)
+    core.add_event_b(x, y, global_axes, canvas)
+    canvas.draw_idle()
+    
 
 def submit_function_2(x, y, canvas):
     try:
@@ -330,6 +358,12 @@ def create_graph():
     global_figure = Figure(figsize=(10, 8), dpi=100)
     global_axes = global_figure.add_subplot(111)
     
+    # Add x-axis line at y=0
+    global_axes.axhline(0, color='black', linewidth=0.8, linestyle='--')
+
+    # Add y-axis line at x=0
+    global_axes.axvline(0, color='black', linewidth=0.8, linestyle='--')
+    
     global_axes.grid(True)
 
     ticks = _build_ticks([-x_lim - 1, x_lim + 1], [-y_lim - 1, y_lim + 1])
@@ -355,32 +389,68 @@ def main():
     window.title("Spacetime Diagram")
     window.geometry("1080x1080")
 
-    greeting = tk.Label(window, text="Object's x location")
+    greeting = tk.Label(window, text="Stationary object's location")
     greeting.place(x=10, y=10)
 
     input = tk.Entry(window, text="Enter here: ", bg="white", fg="black")
-    input.place(x=10, y=50)
+    input.place(x=10, y=30)
 
     submit_button = tk.Button(window, text="Submit", command=lambda: submit_function(input.get(), canvas))
-    submit_button.place(x=10, y=100)  
+    submit_button.place(x=10, y=60)  
+
+    remove_button = tk.Button(window, text="Remove", command=lambda: core.remove_function(canvas))
+    remove_button.place(x=100, y=60)  
+
+    # -----------------------------------------------------------------------------------------------------    
 
     # repeated code
     greeting_2 = tk.Label(window, text="Add a inertial frame. (top input is x' at t'=0, bottom input is β)")
-    greeting_2.pack()
+    greeting_2.place(x=250, y=10)
 
     input_2_1 = tk.Entry(window, text="Enter here: 2", bg="white", fg="black")
-    input_2_1.pack()
+    input_2_1.place(x=250, y=30)
     input_2_2 = tk.Entry(window, text="Enter here: 3", bg="white", fg="black")
-    input_2_2.pack()
+    input_2_2.place(x=250, y=60)
 
     submit_button_2 = tk.Button(window, text="Submit", command=lambda: submit_function_2(input_2_1.get(), input_2_2.get(), canvas))
-    submit_button_2.pack()   
+    submit_button_2.place(x=450, y=30) 
+
+    remove_button_2 = tk.Button(window, text="Remove", command=lambda: core.remove_frame(canvas))
+    remove_button_2.place(x=450, y=60) 
 
     #input_worldline = create_input_box(window, "Worldine", "white", "black") 
 
     # closes the window
     quit_button = tk.Button(window, text="Quit", command=lambda: stop(window))
-    quit_button.pack()
+    quit_button.place(x=517, y=1020)
+
+    # -----------------------------------------------------------------------------------------------------    
+    # Event A
+
+    greeting_3 = tk.Label(window, text="Add event A")
+    greeting_3.place(x=650, y=10)
+    input_3 = tk.Entry(window, text="Enter here: 4", bg="white", fg="black")
+    input_3.place(x=650, y=30)
+
+    submit_button_3 = tk.Button(window, text="Submit", command=lambda: submit_event_a(input_3.get(), input_3.get(), canvas))
+    submit_button_3.place(x=650, y=60)  
+
+    remove_button_3 = tk.Button(window, text="Remove", command=lambda: core.remove_a(canvas))
+    remove_button_3.place(x=750, y=60)  
+    
+    # -----------------------------------------------------------------------------------------------------    
+
+    greeting_4 = tk.Label(window, text="Add event B")
+    greeting_4.place(x=850, y=10)
+    input_4 = tk.Entry(window, text="Enter here: 5", bg="white", fg="black")
+    input_4.place(x=850, y=30)
+
+    submit_button_4 = tk.Button(window, text="Submit", command=lambda: submit_event_b(input_4.get(), input_4.get(), canvas))
+    submit_button_4.place(x=850, y=60)  
+
+    remove_button_4 = tk.Button(window, text="Remove", command=lambda: core.remove_b(canvas))
+    remove_button_4.place(x=950, y=60)  
+
 
     # -----------------------------------------------------------------------------------------------------    
 
@@ -388,7 +458,7 @@ def main():
     figure = create_graph()
     canvas = FigureCanvasTkAgg(figure, master=window)
     canvas.draw_idle() # draw it
-    canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True, padx=10, pady=10) # what does this do?
+    canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True, padx=70, pady=100)
 
     # bind global_axes events to these ones we are defining in these functions
     zoom_factory(global_axes)

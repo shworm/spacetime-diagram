@@ -8,6 +8,15 @@ tprime = None
 xprime = None
 β = None
 
+point = None
+point_line = None
+
+event_a = None
+a_annotation = None
+
+event_b = None
+b_annotation = None
+
 def get_tprime():
     return tprime
 
@@ -25,10 +34,59 @@ def get_xprime():
 # -------------------------------------
 
 def add_point(x_location, global_axes):
+    global point, point_line
+    if point is not None or point_line is not None:
+        point.remove()
+        point_line.remove()
+        point = None
+        point_line = None
+
     if global_axes is None:
         raise RuntimeError("Graph has not been created yet.")
-    global_axes.plot([x_location], [0], marker="o", linestyle="")
-    global_axes.axvline(x=x_location, color="red", linestyle="-")
+    point, = global_axes.plot([x_location], [0], marker="o", linestyle="")
+    point_line = global_axes.axvline(x=x_location, color="red", linestyle="-")
+
+def add_event_a(x_location, y_location, global_axes, canvas):
+    global event_a, a_annotation
+    if event_a is not None:
+        event_a.remove()
+        event_a = None
+
+    if a_annotation is not None:
+        a_annotation.remove()
+        a_annotation = None
+
+    event_a, = global_axes.plot([x_location], [y_location], marker="o", linestyle="")
+
+    a_annotation = global_axes.annotate(
+        f'A: ({y_location}, {x_location})',
+        xy=(x_location, y_location),            # Point to annotate
+        xytext=(x_location + 2 * 0.25, y_location + 2 * 0.5), # Text position (offset from xy)
+        arrowprops=dict(facecolor='black', shrink=2 * 0.1), # Arrow properties
+        bbox=dict(boxstyle="round,pad=0.3", fc="yellow", ec="black", lw=1, alpha=0.9), # Text box properties
+        ha='left', va='bottom' # Horizontal and vertical alignment of text
+    )
+
+def add_event_b(x_location, y_location, global_axes, canvas):
+    global event_b, b_annotation
+    if event_b is not None:
+        event_b.remove()
+        event_b = None
+
+    if b_annotation is not None:
+        b_annotation.remove()
+        b_annotation = None
+
+    event_b, = global_axes.plot([x_location], [y_location], marker="o", linestyle="")
+
+    b_annotation = global_axes.annotate(
+        f'B: ({y_location}, {x_location})',
+        xy=(x_location, y_location),            # Point to annotate
+        xytext=(x_location + 2 * 0.25, y_location + 2 * 0.5), # Text position (offset from xy)
+        arrowprops=dict(facecolor='black', shrink=2 * 0.1), # Arrow properties
+        bbox=dict(boxstyle="round,pad=0.3", fc="yellow", ec="black", lw=1, alpha=0.9), # Text box properties
+        ha='left', va='bottom' # Horizontal and vertical alignment of text
+    )
 
 def add_lorentz_curves(global_axes, intervals=None):
     global color_index, color_options
@@ -71,8 +129,59 @@ def add_lorentz_curves(global_axes, intervals=None):
         else:
             color_index = 0
 
+def remove_frame(figure):
+    global tprime, xprime
+    if tprime is not None:
+        tprime.remove()
+        tprime = None
+    if xprime is not None:
+        xprime.remove()
+        xprime = None
+
+    figure.draw_idle()
+
+def remove_function(figure):
+    global point, point_line
+    if point is not None:
+        point.remove()
+        point = None
+    if point_line is not None:
+        point_line.remove()
+        point_line = None
+
+    figure.draw_idle()
+
+def remove_a(figure):
+    global event_a, a_annotation
+    if event_a is not None:
+        event_a.remove()
+        event_a = None
+    if a_annotation is not None:
+        a_annotation.remove()
+        a_annotation = None
+
+    figure.draw_idle()
+
+def remove_b(figure):
+    global event_b, b_annotation
+    if event_b is not None:
+        event_b.remove()
+        event_b = None
+    if b_annotation is not None:
+        b_annotation.remove()
+        b_annotation = None
+
+    figure.draw_idle()
+
+
 def calculate_frame(x_intercept, β_provided, global_axes):
     global tprime, xprime, β
+    if (tprime != None or xprime != None):
+        tprime.remove()
+        tprime = None
+        xprime.remove()
+        xprime = None
+
     β = β_provided
     if (β >= 1 or β <= -1):
         raise ValueError(f"β cannot be greater than, less than, or equal to speed of light")
