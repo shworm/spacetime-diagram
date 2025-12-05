@@ -88,6 +88,21 @@ def add_event_b(x_location, y_location, global_axes, canvas):
         ha='left', va='bottom' # Horizontal and vertical alignment of text
     )
 
+def transform_view(figure):
+    global tprime, xprime, β, event_a, event_b
+
+    if (tprime == None and xprime == None and event_a == None and event_b == None):
+        raise ValueError("We must have something to transform")
+    
+    if (tprime != None or xprime != None):
+        print("hello")
+    
+
+
+
+
+    figure.draw_idle()
+
 def add_lorentz_curves(global_axes, intervals=None):
     global color_index, color_options
     if global_axes is None:
@@ -103,6 +118,10 @@ def add_lorentz_curves(global_axes, intervals=None):
     # Bruteforce 1000 seconds
     x_vals = np.linspace(-100, 100, 4000)
     y_vals = np.linspace(-100, 100, 4000)
+
+    global_axes.axvline(x=0, color='black', linestyle="-", label='x')
+    global_axes.axhline(y=0, color='black', linestyle="-", label='t')
+
 
     for index, w_value in enumerate(intervals):
         if w_value <= 0:

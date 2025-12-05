@@ -374,6 +374,8 @@ def create_graph():
     global_axes.set_ylim(-y_lim, y_lim)
 
     core.add_lorentz_curves(global_axes)
+
+    global_axes.legend(bbox_to_anchor=(1, 1), loc='upper left', borderaxespad=0.)
     return global_figure
     
 
@@ -417,6 +419,9 @@ def main():
 
     remove_button_2 = tk.Button(window, text="Remove", command=lambda: core.remove_frame(canvas))
     remove_button_2.place(x=450, y=60) 
+
+    transform_button = tk.Button(window, text="Transform!", command=lambda: core.transform_view(canvas))
+    transform_button.place(x=540, y=60)
 
     #input_worldline = create_input_box(window, "Worldine", "white", "black") 
 
