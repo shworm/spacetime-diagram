@@ -24,12 +24,17 @@ b_annotation = None
 def get_tprime():
     return tprime
 
+def get_t():
+    return t
+
 def get_β():
     return β
 
 def get_xprime():
     return xprime
 
+def get_x():
+    return x
 
 # -------------------------------------
 #                                     |
@@ -120,6 +125,9 @@ def transform_view(figure, global_axes):
             t = tprime_line
             x = xprime_line
 
+            t.set_picker(5)
+            x.set_picker(5)
+
             tprime.remove()
             xprime.remove()
 
@@ -145,6 +153,9 @@ def transform_view(figure, global_axes):
 
             tprime = tprime_line
             xprime = xprime_line
+
+            tprime.set_picker(5)
+            xprime.set_picker(5)
 
             t.remove()
             x.remove()

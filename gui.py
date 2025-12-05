@@ -281,14 +281,28 @@ def move_factory(axes):
 
         line = core.get_tprime()
         x_line = core.get_xprime()
+
+        line_other = core.get_t()
+        x_line_other = core.get_x()
         β = core.get_β()
 
-        if event.artist == line:
+        if event.artist == line or event.artist == line_other:
+            the_line = None
+            text = None
+            text_x = None
+            if event.artist == line:
+                the_line = line
+                text = "t\'"
+                text_x = "x\'"
+            elif event.artist == line_other:
+                the_line = line_other
+                text = "t"
+                text_x = "x"
             # index of the picked point
             ind = event.ind[0]
 
-            x_val = line.get_xdata()[ind]
-            y_val = line.get_ydata()[ind]
+            x_val = the_line.get_xdata()[ind]
+            y_val = the_line.get_ydata()[ind]
             #print(f"Picked point: index={ind}, x={x_val:.2f}, y={y_val:.2f}")
 
             if picked_point is not None:
@@ -302,7 +316,7 @@ def move_factory(axes):
 
             # add text for the point
             annotation = global_axes.annotate(
-                f'Point: (t\' = {core.calculate_t_prime(y_val, x_val, β)}, x\' = {core.calculate_x_prime(y_val, x_val, β)})',  # Annotation text
+                f'Point: ({text} = {core.calculate_t_prime(y_val, x_val, β)}, {text_x} = {core.calculate_x_prime(y_val, x_val, β)})',  # Annotation text
                 xy=(x_val, y_val),            # Point to annotate
                 xytext=(x_val + step * 0.25, y_val + step * 0.5), # Text position (offset from xy)
                 arrowprops=dict(facecolor='black', shrink=step * 0.1), # Arrow properties
@@ -311,12 +325,24 @@ def move_factory(axes):
             )
 
             axes.figure.canvas.draw_idle()
-        if event.artist == x_line:
+        if event.artist == x_line or event.artist == x_line_other:
+            the_line = None
+            text = None
+            text_x = None
+            if event.artist == x_line:
+                the_line = x_line
+                text = "t\'"
+                text_x = "x\'"
+            elif event.artist == x_line_other:
+                the_line = x_line_other
+                text = "t"
+                text_x = "x"
+
             # index of the picked point
             ind = event.ind[0]
 
-            x_val = x_line.get_xdata()[ind]
-            y_val = x_line.get_ydata()[ind]
+            x_val = the_line.get_xdata()[ind]
+            y_val = the_line.get_ydata()[ind]
             print(f"Picked point: index={ind}, x={x_val:.2f}, y={y_val:.2f}")
 
             if picked_point is not None:
@@ -330,7 +356,7 @@ def move_factory(axes):
 
             # add text for the point
             annotation = global_axes.annotate(
-                f'Point: (t\' = {core.calculate_t_prime(y_val, x_val, β)}, x\' = {core.calculate_x_prime(y_val, x_val, β)})',  # Annotation text
+                f'Point: ({text} = {core.calculate_t_prime(y_val, x_val, β)}, {text_x} = {core.calculate_x_prime(y_val, x_val, β)})',  # Annotation text
                 xy=(x_val, y_val),            # Point to annotate
                 xytext=(x_val + step * 0.25, y_val + step * 0.5), # Text position (offset from xy)
                 arrowprops=dict(facecolor='black', shrink=step * 0.1), # Arrow properties
