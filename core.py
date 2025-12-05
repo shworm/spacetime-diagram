@@ -98,7 +98,7 @@ def add_event_b(x_location, y_location, global_axes, canvas):
     )
 
 def transform_view(figure, global_axes):
-    global tprime, xprime, β, event_a, event_b, x_new_frame, t, x, primary_view, a_annotation, b_annotation
+    global tprime, xprime, β, event_a, event_b, x_new_frame, t, x, primary_view, a_annotation, b_annotation, point, point_line
     view = primary_view
 
     if (tprime == None and xprime == None and event_a == None and event_b == None):
@@ -191,6 +191,29 @@ def transform_view(figure, global_axes):
 
     if (event_b != None and β != None):
         print("Do something for event B")
+
+    if (point != None or point_line != None):
+        temp = point
+        temp_line = point_line
+
+        point_x = point.get_xdata()
+        point_y = point.get_ydata()
+
+        x_vals = (np.linspace(-β - 50, β + 50, 4000))
+
+        if (view == "t"):
+            point, = global_axes.plot([calculate_x_prime(point_y, point_x, β)], [calculate_t_prime(point_y, point_x, β)], marker="o", linestyle="")
+            γ = 1 / (math.sqrt(1 - (math.pow(β, 2))))
+            equation = (point_x / (γ * β)) - ((1/β) * x_vals)
+
+            point_line, = global_axes.plot(x_vals, equation, color="red")
+        elif(view == "tprime"):
+            point, = global_axes.plot([calculate_x(point_y, point_x, β)], [calculate_t(point_y, point_x, β)], marker="o", linestyle="")
+            point_line = global_axes.axvline(x=calculate_x(point_y, point_x, β),  color="red", linestyle="-")
+        
+        temp.remove()
+        temp_line.remove()
+
 
     figure.draw_idle()
 

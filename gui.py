@@ -314,15 +314,25 @@ def move_factory(axes):
             if annotation is not None:
                 annotation.remove()
 
-            # add text for the point
-            annotation = global_axes.annotate(
-                f'Point: ({text} = {core.calculate_t_prime(y_val, x_val, β)}, {text_x} = {core.calculate_x_prime(y_val, x_val, β)})',  # Annotation text
-                xy=(x_val, y_val),            # Point to annotate
-                xytext=(x_val + step * 0.25, y_val + step * 0.5), # Text position (offset from xy)
-                arrowprops=dict(facecolor='black', shrink=step * 0.1), # Arrow properties
-                bbox=dict(boxstyle="round,pad=0.3", fc="yellow", ec="black", lw=1, alpha=0.9), # Text box properties
-                ha='left', va='bottom' # Horizontal and vertical alignment of text
-            )
+            if text == "t\'":
+                # add text for the point
+                annotation = global_axes.annotate(
+                    f'Point: ({text} = {core.calculate_t_prime(y_val, x_val, β)}, {text_x} = {core.calculate_x_prime(y_val, x_val, β)})',  # Annotation text
+                    xy=(x_val, y_val),            # Point to annotate
+                    xytext=(x_val + step * 0.25, y_val + step * 0.5), # Text position (offset from xy)
+                    arrowprops=dict(facecolor='black', shrink=step * 0.1), # Arrow properties
+                    bbox=dict(boxstyle="round,pad=0.3", fc="yellow", ec="black", lw=1, alpha=0.9), # Text box properties
+                    ha='left', va='bottom' # Horizontal and vertical alignment of text
+                )
+            if text == "t":
+                annotation = global_axes.annotate(
+                    f'Point: ({text} = {core.calculate_t(y_val, x_val, β)}, {text_x} = {core.calculate_x(y_val, x_val, β)})',  # Annotation text
+                    xy=(x_val, y_val),            # Point to annotate
+                    xytext=(x_val + step * 0.25, y_val + step * 0.5), # Text position (offset from xy)
+                    arrowprops=dict(facecolor='black', shrink=step * 0.1), # Arrow properties
+                    bbox=dict(boxstyle="round,pad=0.3", fc="yellow", ec="black", lw=1, alpha=0.9), # Text box properties
+                    ha='left', va='bottom' # Horizontal and vertical alignment of text
+                )
 
             axes.figure.canvas.draw_idle()
         if event.artist == x_line or event.artist == x_line_other:
