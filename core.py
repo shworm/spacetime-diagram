@@ -223,15 +223,31 @@ def transform_view(figure, global_axes):
         x_vals = (np.linspace(-β - 50, β + 50, 4000))
 
         if (view == "t"):
-            point, = global_axes.plot([calculate_x_prime(point_y, point_x, β)], [calculate_t_prime(point_y, point_x, β)], marker="o", linestyle="")
-            γ = 1 / (math.sqrt(1 - (math.pow(β, 2))))
-            equation = (point_x / (γ * β)) - ((1/β) * x_vals)
+            x_data = point_line.get_xdata()
 
-            point_line, = global_axes.plot(x_vals, equation, color="red")
-        elif(view == "tprime"):
-            point, = global_axes.plot([calculate_x(point_y, point_x, β)], [calculate_t(point_y, point_x, β)], marker="o", linestyle="")
-            point_line = global_axes.axvline(x=calculate_x(point_y, point_x, β),  color="red", linestyle="-")
+            if (x_data[-1] - x_data[0] == 0):
+                point, = global_axes.plot([calculate_x_prime(point_y, point_x, β)], [calculate_t_prime(point_y, point_x, β)], marker="o", linestyle="")
+                point_line = global_axes.axvline(x=calculate_x_prime(point_y, point_x, β),  color="red", linestyle="-")
+            else:
+                point, = global_axes.plot([calculate_x_prime(point_y, point_x, β)], [calculate_t_prime(point_y, point_x, β)], marker="o", linestyle="")
+                γ = 1 / (math.sqrt(1 - (math.pow(β, 2))))
+                equation = (point_x / (γ * β)) - ((1/β) * x_vals)
+
+                point_line, = global_axes.plot(x_vals, equation, color="red")
         
+            
+        elif(view == "tprime"):
+            x_data = point_line.get_xdata()
+
+            if (x_data[-1] - x_data[0] == 0):
+                point, = global_axes.plot([calculate_x(point_y, point_x, β)], [calculate_t(point_y, point_x, β)], marker="o", linestyle="")
+                point_line = global_axes.axvline(x=calculate_x(point_y, point_x, β),  color="red", linestyle="-")
+            else:
+                γ = 1 / (math.sqrt(1 - (math.pow(β, 2))))
+                equation = -(point_x / (γ * β)) - ((1/β) * x_vals)
+
+                point_line, = global_axes.plot(x_vals, equation, color="red")
+
         temp.remove()
         temp_line.remove()
 
