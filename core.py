@@ -93,7 +93,8 @@ def add_event_b(x_location, y_location, global_axes, canvas):
     )
 
 def transform_view(figure, global_axes):
-    global tprime, xprime, β, event_a, event_b, x_new_frame, t, x, primary_view
+    global tprime, xprime, β, event_a, event_b, x_new_frame, t, x, primary_view, a_annotation, b_annotation
+    view = primary_view
 
     if (tprime == None and xprime == None and event_a == None and event_b == None):
         raise ValueError("We must have something to transform")
@@ -152,11 +153,35 @@ def transform_view(figure, global_axes):
             x = global_axes.axhline(y=0, color='black', linestyle="-", label='t')
             primary_view = "t"
 
-        figure.draw_idle()
-    if (event_a != None):
-        print("Do something for event A")
-    if (event_b != None):
+
+    if (event_a != None and β != None):
+        temp = event_a
+        if (view == "t"):
+            event_a, = global_axes.plot([calculate_x_prime(event_a.get_ydata(), event_a.get_xdata(), β)], [calculate_t_prime(event_a.get_ydata(), event_a.get_xdata(), β)], marker="o", linestyle="")
+        elif (view == "tprime"):
+            event_a, = global_axes.plot([calculate_x(event_a.get_ydata(), event_a.get_xdata(), β)], [calculate_t(event_a.get_ydata(), event_a.get_xdata(), β)], marker="o", linestyle="")
+        temp.remove()
+
+        temp = a_annotation
+        x_location = event_a.get_xdata()
+        y_location = event_a.get_ydata()
+
+        # do something with the annotation
+        a_annotation = global_axes.annotate(
+            f'A: ({y_location}, {x_location})',
+            xy=(x_location, y_location), 
+            xytext=(x_location + 2 * 0.25, y_location + 2 * 0.5), 
+            arrowprops=dict(facecolor='black', shrink=2 * 0.1), # Arrow properties
+            bbox=dict(boxstyle="round,pad=0.3", fc="yellow", ec="black", lw=1, alpha=0.9), # Text box properties
+            ha='left', va='bottom'
+        )
+
+        temp.remove()
+
+    if (event_b != None and β != None):
         print("Do something for event B")
+
+    figure.draw_idle()
 
 def add_lorentz_curves(global_axes, intervals=None):
     global color_index, color_options, t, x
@@ -278,6 +303,16 @@ def calculate_frame(x_intercept, β_provided, global_axes):
 
     tprime = tprime_line
     xprime = xprime_line
+
+def calculate_t(tprime, xprime, β):
+    γ = 1 / (math.sqrt(1 - (math.pow(β, 2))))
+
+    return γ * (tprime + (β * xprime))
+
+def calculate_x(tprime, xprime, β):
+    γ = 1 / (math.sqrt(1 - (math.pow(β, 2))))
+
+    return γ * ((β * tprime) + xprime)
 
 def calculate_t_prime(t, x, β):
     γ = 1 / (math.sqrt(1 - (math.pow(β, 2))))
