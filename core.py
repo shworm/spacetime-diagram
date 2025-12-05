@@ -4,9 +4,13 @@ import math
 color_options = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
 color_index = 0
 
+t = None
+x = None
 tprime = None
 xprime = None
+x_new_frame = None
 β = None
+primary_view = "t"
 
 point = None
 point_line = None
@@ -88,8 +92,8 @@ def add_event_b(x_location, y_location, global_axes, canvas):
         ha='left', va='bottom' # Horizontal and vertical alignment of text
     )
 
-def transform_view(figure):
-    global tprime, xprime, β, event_a, event_b
+def transform_view(figure, global_axes):
+    global tprime, xprime, β, event_a, event_b, x_new_frame, t, x, primary_view
 
     if (tprime == None and xprime == None and event_a == None and event_b == None):
         raise ValueError("We must have something to transform")
@@ -97,14 +101,63 @@ def transform_view(figure):
     if (tprime != None or xprime != None):
         print("hello")
     
+    if primary_view == "t":
+        slope = (1 / β)
 
+        x_vals = (np.linspace(-β - 50, β + 50, 4000))
 
+        equation_t = -((slope * x_vals) - (x_new_frame / β))
+        equation_x = -((β * x_vals) - (x_new_frame * β))
 
+        tprime_line, = global_axes.plot(x_vals, equation_t, color="black", label="t'")
+        xprime_line, = global_axes.plot(x_vals, equation_x, color="black", label="x'")
+
+        # Enable pick events so gui.move_factory onpick sees these lines as artists
+        #tprime_line.set_picker(5)
+        #xprime_line.set_picker(5)
+        t.remove()
+        x.remove()
+
+        t = tprime_line
+        x = xprime_line
+
+        tprime.remove()
+        xprime.remove()
+
+        tprime = global_axes.axvline(x=0, color='blue', linestyle="-", label='x')
+        xprime = global_axes.axhline(y=0, color='orange', linestyle="-", label='t')
+        primary_view = "tprime"
+    else:
+        slope = (1 / β)
+
+        x_vals = (np.linspace(-β - 50, β + 50, 4000))
+
+        equation_t = ((slope * x_vals) - (x_new_frame / β))
+        equation_x = ((β * x_vals) - (x_new_frame * β))
+
+        tprime_line, = global_axes.plot(x_vals, equation_t, color="blue", label="t'")
+        xprime_line, = global_axes.plot(x_vals, equation_x, color="orange", label="x'")
+
+        # Enable pick events so gui.move_factory onpick sees these lines as artists
+        #tprime_line.set_picker(5)
+        #xprime_line.set_picker(5)
+        tprime.remove()
+        xprime.remove()
+
+        tprime = tprime_line
+        xprime = xprime_line
+
+        t.remove()
+        x.remove()
+
+        t = global_axes.axvline(x=0, color='black', linestyle="-", label='x')
+        x = global_axes.axhline(y=0, color='black', linestyle="-", label='t')
+        primary_view = "t"
 
     figure.draw_idle()
 
 def add_lorentz_curves(global_axes, intervals=None):
-    global color_index, color_options
+    global color_index, color_options, t, x
     if global_axes is None:
         raise RuntimeError("Graph has not been created yet.")
 
@@ -119,8 +172,8 @@ def add_lorentz_curves(global_axes, intervals=None):
     x_vals = np.linspace(-100, 100, 4000)
     y_vals = np.linspace(-100, 100, 4000)
 
-    global_axes.axvline(x=0, color='black', linestyle="-", label='x')
-    global_axes.axhline(y=0, color='black', linestyle="-", label='t')
+    t = global_axes.axvline(x=0, color='black', linestyle="-", label='x')
+    x = global_axes.axhline(y=0, color='black', linestyle="-", label='t')
 
 
     for index, w_value in enumerate(intervals):
@@ -194,7 +247,9 @@ def remove_b(figure):
 
 
 def calculate_frame(x_intercept, β_provided, global_axes):
-    global tprime, xprime, β
+    global tprime, xprime, β, x_new_frame
+    x_new_frame = x_intercept
+
     if (tprime != None or xprime != None):
         tprime.remove()
         tprime = None
