@@ -99,62 +99,64 @@ def transform_view(figure, global_axes):
         raise ValueError("We must have something to transform")
     
     if (tprime != None or xprime != None):
-        print("hello")
-    
-    if primary_view == "t":
-        slope = (1 / β)
+        if primary_view == "t":
+            slope = (1 / β)
 
-        x_vals = (np.linspace(-β - 50, β + 50, 4000))
+            x_vals = (np.linspace(-β - 50, β + 50, 4000))
 
-        equation_t = -((slope * x_vals) - (x_new_frame / β))
-        equation_x = -((β * x_vals) - (x_new_frame * β))
+            equation_t = -((slope * x_vals) - (x_new_frame / β))
+            equation_x = -((β * x_vals) - (x_new_frame * β))
 
-        tprime_line, = global_axes.plot(x_vals, equation_t, color="black", label="t'")
-        xprime_line, = global_axes.plot(x_vals, equation_x, color="black", label="x'")
+            tprime_line, = global_axes.plot(x_vals, equation_t, color="black", label="t'")
+            xprime_line, = global_axes.plot(x_vals, equation_x, color="black", label="x'")
 
-        # Enable pick events so gui.move_factory onpick sees these lines as artists
-        #tprime_line.set_picker(5)
-        #xprime_line.set_picker(5)
-        t.remove()
-        x.remove()
+            # Enable pick events so gui.move_factory onpick sees these lines as artists
+            #tprime_line.set_picker(5)
+            #xprime_line.set_picker(5)
+            t.remove()
+            x.remove()
 
-        t = tprime_line
-        x = xprime_line
+            t = tprime_line
+            x = xprime_line
 
-        tprime.remove()
-        xprime.remove()
+            tprime.remove()
+            xprime.remove()
 
-        tprime = global_axes.axvline(x=0, color='blue', linestyle="-", label='x')
-        xprime = global_axes.axhline(y=0, color='orange', linestyle="-", label='t')
-        primary_view = "tprime"
-    else:
-        slope = (1 / β)
+            tprime = global_axes.axvline(x=0, color='blue', linestyle="-", label='x')
+            xprime = global_axes.axhline(y=0, color='orange', linestyle="-", label='t')
+            primary_view = "tprime"
+        else:
+            slope = (1 / β)
 
-        x_vals = (np.linspace(-β - 50, β + 50, 4000))
+            x_vals = (np.linspace(-β - 50, β + 50, 4000))
 
-        equation_t = ((slope * x_vals) - (x_new_frame / β))
-        equation_x = ((β * x_vals) - (x_new_frame * β))
+            equation_t = ((slope * x_vals) - (x_new_frame / β))
+            equation_x = ((β * x_vals) - (x_new_frame * β))
 
-        tprime_line, = global_axes.plot(x_vals, equation_t, color="blue", label="t'")
-        xprime_line, = global_axes.plot(x_vals, equation_x, color="orange", label="x'")
+            tprime_line, = global_axes.plot(x_vals, equation_t, color="blue", label="t'")
+            xprime_line, = global_axes.plot(x_vals, equation_x, color="orange", label="x'")
 
-        # Enable pick events so gui.move_factory onpick sees these lines as artists
-        #tprime_line.set_picker(5)
-        #xprime_line.set_picker(5)
-        tprime.remove()
-        xprime.remove()
+            # Enable pick events so gui.move_factory onpick sees these lines as artists
+            #tprime_line.set_picker(5)
+            #xprime_line.set_picker(5)
+            tprime.remove()
+            xprime.remove()
 
-        tprime = tprime_line
-        xprime = xprime_line
+            tprime = tprime_line
+            xprime = xprime_line
 
-        t.remove()
-        x.remove()
+            t.remove()
+            x.remove()
 
-        t = global_axes.axvline(x=0, color='black', linestyle="-", label='x')
-        x = global_axes.axhline(y=0, color='black', linestyle="-", label='t')
-        primary_view = "t"
+            t = global_axes.axvline(x=0, color='black', linestyle="-", label='x')
+            x = global_axes.axhline(y=0, color='black', linestyle="-", label='t')
+            primary_view = "t"
 
-    figure.draw_idle()
+        figure.draw_idle()
+    if (event_a != None):
+        print("Do something for event A")
+    if (event_b != None):
+        print("Do something for event B")
 
 def add_lorentz_curves(global_axes, intervals=None):
     global color_index, color_options, t, x

@@ -432,12 +432,15 @@ def main():
     # -----------------------------------------------------------------------------------------------------    
     # Event A
 
-    greeting_3 = tk.Label(window, text="Add event A")
+    greeting_3 = tk.Label(window, text="Add event A (t, x): ")
     greeting_3.place(x=650, y=10)
-    input_3 = tk.Entry(window, text="Enter here: 4", bg="white", fg="black")
-    input_3.place(x=650, y=30)
+    input_3_x = tk.Entry(window, text="Enter here: 4", bg="white", fg="black", width=5)
+    input_3_x.place(x=650, y=30)
 
-    submit_button_3 = tk.Button(window, text="Submit", command=lambda: submit_event_a(input_3.get(), input_3.get(), canvas))
+    input_3_y = tk.Entry(window, text="Enter here: 6", bg="white", fg="black", width=5)
+    input_3_y.place(x=710, y=30)
+
+    submit_button_3 = tk.Button(window, text="Submit", command=lambda: submit_event_a(input_3_y.get(), input_3_x.get(), canvas))
     submit_button_3.place(x=650, y=60)  
 
     remove_button_3 = tk.Button(window, text="Remove", command=lambda: core.remove_a(canvas))
@@ -447,10 +450,13 @@ def main():
 
     greeting_4 = tk.Label(window, text="Add event B")
     greeting_4.place(x=850, y=10)
-    input_4 = tk.Entry(window, text="Enter here: 5", bg="white", fg="black")
+    input_4 = tk.Entry(window, text="Enter here: 5", bg="white", fg="black", width=5)
     input_4.place(x=850, y=30)
 
-    submit_button_4 = tk.Button(window, text="Submit", command=lambda: submit_event_b(input_4.get(), input_4.get(), canvas))
+    input_4_y = tk.Entry(window, text="Enter here: 7", bg="white", fg="black", width=5)
+    input_4_y.place(x=910, y=30)
+
+    submit_button_4 = tk.Button(window, text="Submit", command=lambda: submit_event_b(input_4_y.get(), input_4.get(), canvas))
     submit_button_4.place(x=850, y=60)  
 
     remove_button_4 = tk.Button(window, text="Remove", command=lambda: core.remove_b(canvas))
