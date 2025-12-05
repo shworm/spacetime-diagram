@@ -190,7 +190,28 @@ def transform_view(figure, global_axes):
         temp.remove()
 
     if (event_b != None and β != None):
-        print("Do something for event B")
+        temp = event_b
+        if (view == "t"):
+            event_b, = global_axes.plot([calculate_x_prime(event_b.get_ydata(), event_b.get_xdata(), β)], [calculate_t_prime(event_b.get_ydata(), event_b.get_xdata(), β)], marker="o", linestyle="")
+        elif (view == "tprime"):
+            event_b, = global_axes.plot([calculate_x(event_b.get_ydata(), event_b.get_xdata(), β)], [calculate_t(event_b.get_ydata(), event_b.get_xdata(), β)], marker="o", linestyle="")
+        temp.remove()
+
+        temp = b_annotation
+        x_location = event_b.get_xdata()
+        y_location = event_b.get_ydata()
+
+        # do something with the annotation
+        b_annotation = global_axes.annotate(
+            f'B: ({y_location}, {x_location})',
+            xy=(x_location, y_location), 
+            xytext=(x_location + 2 * 0.25, y_location + 2 * 0.5), 
+            arrowprops=dict(facecolor='black', shrink=2 * 0.1), # Arrow properties
+            bbox=dict(boxstyle="round,pad=0.3", fc="yellow", ec="black", lw=1, alpha=0.9), # Text box properties
+            ha='left', va='bottom'
+        )
+
+        temp.remove()
 
     if (point != None or point_line != None):
         temp = point
