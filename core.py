@@ -14,6 +14,7 @@ primary_view = "t"
 
 point = None
 point_line = None
+point_init = None
 
 event_a = None
 a_annotation = None
@@ -43,7 +44,7 @@ def get_x():
 # -------------------------------------
 
 def add_point(x_location, global_axes):
-    global point, point_line
+    global point, point_line, point_init
     if point is not None or point_line is not None:
         point.remove()
         point_line.remove()
@@ -54,6 +55,11 @@ def add_point(x_location, global_axes):
         raise RuntimeError("Graph has not been created yet.")
     point, = global_axes.plot([x_location], [0], marker="o", linestyle="")
     point_line = global_axes.axvline(x=x_location, color="red", linestyle="-")
+
+    if (primary_view == "t"):
+        point_init = "t"
+    else:
+        point_init = "tprime"
 
 def add_event_a(x_location, y_location, global_axes, canvas):
     global event_a, a_annotation
@@ -98,7 +104,7 @@ def add_event_b(x_location, y_location, global_axes, canvas):
     )
 
 def transform_view(figure, global_axes):
-    global tprime, xprime, β, event_a, event_b, x_new_frame, t, x, primary_view, a_annotation, b_annotation, point, point_line
+    global tprime, xprime, β, event_a, event_b, x_new_frame, t, x, primary_view, a_annotation, b_annotation, point, point_line, point_init
     view = primary_view
 
     if (tprime == None and xprime == None and event_a == None and event_b == None):
@@ -223,28 +229,25 @@ def transform_view(figure, global_axes):
         x_vals = (np.linspace(-β - 50, β + 50, 4000))
 
         if (view == "t"):
-            x_data = point_line.get_xdata()
-
-            if (x_data[-1] - x_data[0] == 0):
-                point, = global_axes.plot([calculate_x_prime(point_y, point_x, β)], [calculate_t_prime(point_y, point_x, β)], marker="o", linestyle="")
-                point_line = global_axes.axvline(x=calculate_x_prime(point_y, point_x, β),  color="red", linestyle="-")
-            else:
+            if (point_init == "t"):
                 point, = global_axes.plot([calculate_x_prime(point_y, point_x, β)], [calculate_t_prime(point_y, point_x, β)], marker="o", linestyle="")
                 γ = 1 / (math.sqrt(1 - (math.pow(β, 2))))
                 equation = (point_x / (γ * β)) - ((1/β) * x_vals)
 
                 point_line, = global_axes.plot(x_vals, equation, color="red")
-        
-            
+            else:
+                point, = global_axes.plot([calculate_x_prime(point_y, point_x, β)], [0], marker="o", linestyle="")
+                point_line = global_axes.axvline(x=calculate_x_prime(point_y, point_x, β), color="red", linestyle="-")
         elif(view == "tprime"):
             x_data = point_line.get_xdata()
 
-            if (x_data[-1] - x_data[0] == 0):
+            if (point_init == "t"):
                 point, = global_axes.plot([calculate_x(point_y, point_x, β)], [calculate_t(point_y, point_x, β)], marker="o", linestyle="")
                 point_line = global_axes.axvline(x=calculate_x(point_y, point_x, β),  color="red", linestyle="-")
             else:
+                point, = global_axes.plot([calculate_x(point_y, point_x, β)], [calculate_t(point_y, point_x, β)], marker="o", linestyle="")
                 γ = 1 / (math.sqrt(1 - (math.pow(β, 2))))
-                equation = -(point_x / (γ * β)) - ((1/β) * x_vals)
+                equation = ((1/β) * x_vals) - (point_x / (β * γ))
 
                 point_line, = global_axes.plot(x_vals, equation, color="red")
 
