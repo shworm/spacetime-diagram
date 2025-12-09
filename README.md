@@ -1,10 +1,7 @@
 # FrameCalc
 ## _Spacetime relativity simulator_
 
-![FrameCalc demo](spacetime-diagram/demogif.gif)
-
-
-[![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
+![FrameCalc demo](assets/demogif.gif)
 
 FrameCalc is a spacetime graphing calculator for special relativity.
 - Plot worldlines for objects and observers
