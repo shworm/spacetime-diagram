@@ -1,7 +1,7 @@
 # FrameCalc
 ## _Spacetime relativity simulator_
 
-![FrameCalc demo]((https://github.com/shworm/spacetime-diagram/blob/main/demogif.gif))
+![FrameCalc demo](spacetime-diagram/demogif.gif)
 
 
 [![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
